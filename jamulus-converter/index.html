@@ -16,9 +16,9 @@
         <script>
             function pre_attach(id, text, style) {
                 const max_length = 1600;
-                const html_pre = { default: '<pre>', big: '<big><pre>' };
+                const html_pre = { default: '<pre>', big: '<pre><big>', big_bold: '<pre><big><b>' };
                 const html_br = '<br/>';
-                const html_post = { default: '</pre>', big: '</pre></big>' };
+                const html_post = { default: '</pre>', big: '</big></pre>', big_bold: '</b></big></pre>' };
 
                 if (text != null) {
                     text = text.replace(/\s+$/, '');
@@ -84,7 +84,8 @@
                     <button onclick="pre_convert()">Convert</button>
                     <select id="text_output_style">
                         <option value="default">Default</option>
-                        <option value="big">Big Text</option>
+                        <option value="big">Big</option>
+                        <option value="big_bold">Big Bold</option>
                     </select><br/>
                     <input type="text" id="text_output_1"/>
                     <input type="text" id="text_output_2"/>
