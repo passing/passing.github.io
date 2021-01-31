@@ -22,6 +22,10 @@ function pre_attach(id, text) {
     const html_br = '<br/>';
     const html_post = '</pre>';
 
+    if (text != null) {
+        text = text.replace(/\s+$/, '');
+    }
+
     var length = document.getElementById(id).value.length;
 
     if (length == 0) {
