@@ -18,9 +18,9 @@
 <script>
 function pre_attach(id, text) {
     const max_length = 1600;
-    const html_pre = '<pre>';
+    const html_pre = '<big><pre>';
     const html_br = '<br/>';
-    const html_post = '</pre>';
+    const html_post = '</pre></big>';
 
     if (text != null) {
         text = text.replace(/\s+$/, '');
