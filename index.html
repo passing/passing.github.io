@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script>
+function pre_attach(id, text) {
+    const max_length = 1600;
+    const html_pre = '<pre>';
+    const html_br = '<br/>';
+    const html_post = '</pre>';
+
+    var length = document.getElementById(id).value.length;
+
+    if (length == 0) {
+        document.getElementById(id).value += html_pre + text;
+        return true;
+    } else if ((text != null) && (length + html_br.length + text.length + html_post.length <= max_length)) {
+        document.getElementById(id).value += html_br + text;
+        return true;
+    } else {
+        document.getElementById(id).value += html_post;
+        return false;
+    }
+}
+
+function pre_convert() {
+    const outputs = ['text_output_1', 'text_output_2', 'text_output_3', 'text_output_4', 'text_output_5'];
+
+    for (const element of outputs) {
+        document.getElementById(element).value = '';
+    }
+
+    var input = document.getElementById("text_input").value.split('\n');
+    var output = 0;
+
+    for (const line of input) {
+        while (!pre_attach(outputs[output], line)) {
+            output += 1;
+        }
+    }
+    pre_attach(outputs[output], null);
+    
+}
+</script>
+
+<table style="width: 100%">
+<tr>
+<td width="50%">
+<textarea id="text_input" style="width: 100%; height: 800px"></textarea>
+</td>
+<td>
+<button onclick="pre_convert()">Convert</button><br/>
+<input type="text" id="text_output_1" style="width: 100%"/>
+<input type="text" id="text_output_2" style="width: 100%"/>
+<input type="text" id="text_output_3" style="width: 100%"/>
+<input type="text" id="text_output_4" style="width: 100%"/>
+<input type="text" id="text_output_5" style="width: 100%"/>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
