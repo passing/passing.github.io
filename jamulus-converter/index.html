@@ -8,17 +8,16 @@
         <table>
             <tr>
                 <td>
-                    <textarea id="text_input"></textarea>
+                    <textarea id="text_input" onchange="pre_convert()"></textarea>
                 </td>
                 <td>
-                    <button onclick="clean()">Clean</button>
-                    <select id="text_output_style">
+                    <select id="text_output_style" onchange="pre_convert()">
                         <option value="default">Default</option>
                         <option value="small">Small</option>
                         <option value="big">Big</option>
                         <option value="big_bold">Big Bold</option>
                     </select>
-                    <button onclick="pre_convert()">Convert</button><br/>
+                    <button onclick="clean(); pre_convert()">Clean &amp; Convert</button>
                     <input type="text" id="text_output_1"/>
                     <input type="text" id="text_output_2"/>
                     <input type="text" id="text_output_3"/>
