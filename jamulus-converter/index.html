@@ -17,7 +17,7 @@
             }
         </style>
         <script>
-            function pre_attach(id, text, style, break_tag) {
+            function pre_split(input, style) {
                 const max_length = 1600;
                 const html_pre = {
                     default: '<pre>',
@@ -25,59 +25,63 @@
                     big: '<pre><big>',
                     big_bold: '<pre><big><b>'
                 };
-                const html_break = {
-                    br: '<br>',
-                    p: '<p>'
-                }
                 const html_post = {
                     default: '</pre>',
                     small: '</small></pre>',
                     big: '</big></pre>',
                     big_bold: '</b></big></pre>'
                 };
+                const html_break = {
+                    none: '',
+                    br: '<br>',
+                    p: '<p>'
+                };
 
-                // get current length of output
-                var length = document.getElementById(id).value.length;
+                // split and trim input
+                var lines = input.split('\n').map(i => i.trimEnd());
 
-                if (length == 0) {
-                    // output is empty, add pre tags and text
-                    document.getElementById(id).value += html_pre[style] + text;
-                    return true;
-                } else if ((text != null) && (length + html_break[break_tag].length + text.length + html_post[style].length <= max_length)) {
-                    // output has enough space left for text and html tags
-                    document.getElementById(id).value += html_break[break_tag] + text;
-                    return true;
-                } else {
-                    // output would overflow, add post tags and return false to indicate that text was not added
-                    document.getElementById(id).value += html_post[style];
-                    return false;
+                var output = [''];
+                var o = 0;
+                var break_tag = 'br'
+
+                for (const line of lines) {
+                    if (line) {
+                        var length = output[o].length;
+
+                        if (length == 0) {
+                            // no break on a new line
+                            break_tag = 'none'
+                        }
+
+                        if (length + html_break[break_tag].length + line.length + html_pre[style].length + html_post[style].length > max_length) {
+                            // switch to next line when line is full
+                            o++;
+                            output.push('');
+                            break_tag = 'none'
+                        }
+
+                        output[o] += html_break[break_tag] + line;
+                        break_tag = 'br';
+                    } else {
+                        // create new paragraph when one or more lines are empty
+                        break_tag = 'p';
+                    }
                 }
+
+                return output.map(o => html_pre[style] + o + html_post[style]);
             }
 
             function pre_convert() {
                 const outputs = ['text_output_1', 'text_output_2', 'text_output_3', 'text_output_4', 'text_output_5'];
 
-                for (const output of outputs) {
-                    // reset all output fields
-                    document.getElementById(output).value = '';
-                }
-
-                var input = document.getElementById("text_input").value.split('\n');
+                var input = document.getElementById("text_input").value;
                 var style = document.getElementById("text_output_style").value;
-                var output = 0;
-                var break_tag = 'br';
 
-                for (const line of input) {
-                    if (line.trimEnd() == '') {
-                        break_tag = 'p';
-                    } else {
-                        while (!pre_attach(outputs[output], line.trimEnd(), style, break_tag)) {
-                            output += 1;
-                        }
-                        break_tag = 'br';
-                    }
+                var output = pre_split(input, style)
+
+                for (var o = 0; o < outputs.length; o++) {
+                    document.getElementById(outputs[o]).value = output[o] || '';
                 }
-                pre_attach(outputs[output], null, style, 'br');
             }
 
             function clean_double_newlines(text) {
