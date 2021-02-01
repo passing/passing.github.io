@@ -12,6 +12,9 @@
                 width: 100%;
                 height: 600px;
             }
+            td {
+                vertical-align: top;
+            }
         </style>
         <script>
             function pre_attach(id, text, style) {
@@ -22,7 +25,7 @@
                     big: '<pre><big>',
                     big_bold: '<pre><big><b>'
                 };
-                const html_br = '<br/>';
+                const html_br = '<br>';
                 const html_post = {
                     default: '</pre>',
                     small: '</small></pre>',
@@ -30,19 +33,24 @@
                     big_bold: '</b></big></pre>'
                 };
 
-                if (text != null) {
-                    text = text.replace(/\s+$/, '');
+                if (text) {
+                    // trim trailing spaces
+                    text = text.trimEnd()
                 }
 
+                // get current length of output
                 var length = document.getElementById(id).value.length;
 
                 if (length == 0) {
+                    // output is empty, add pre tags and text
                     document.getElementById(id).value += html_pre[style] + text;
                     return true;
                 } else if ((text != null) && (length + html_br.length + text.length + html_post[style].length <= max_length)) {
+                    // output has enough space left for text and html tags
                     document.getElementById(id).value += html_br + text;
                     return true;
                 } else {
+                    // output would overflow, add post tags and return false to indicate that text was not added
                     document.getElementById(id).value += html_post[style];
                     return false;
                 }
@@ -51,8 +59,9 @@
             function pre_convert() {
                 const outputs = ['text_output_1', 'text_output_2', 'text_output_3', 'text_output_4', 'text_output_5'];
 
-                for (const element of outputs) {
-                    document.getElementById(element).value = '';
+                for (const output of outputs) {
+                    // reset all output fields
+                    document.getElementById(output).value = '';
                 }
 
                 var input = document.getElementById("text_input").value.split('\n');
@@ -67,19 +76,56 @@
                 pre_attach(outputs[output], null, style);
             }
 
-            function clean() {
-                var input = document.getElementById("text_input").value.split('\n');
-                var output = ''
+            function clean_double_newlines(text) {
+                var input = text.split('\n');
+                var output = [];
 
+                // loop over all lines
                 for (var i = 0; i < input.length; i++) {
                     if (i % 2 == 0) {
-                        output += input[i] + '\n';
+                        // add odd lines to output
+                        output.push(input[i])
                     } else if (input[i] != '') {
-                        return;
+                        // return original text if any even line is not empty
+                        return text;
                     }
                 }
 
-                document.getElementById("text_input").value = output;
+                // return all odd lines when all even lines were empty
+                return output.join('\n');
+            }
+
+            function clean_leading_spaces(text) {
+                var input = text.split('\n');
+                var output = [];
+                var trim = null;
+
+                for (const line of input) {
+                    // only check lines that have non space characters
+                    if (/\S/.test(line)) {
+                        // get number of leading spaces
+                        var trailing_spaces = /^\s*/.exec(line)[0].length
+                        if (trim == null || trailing_spaces < trim) {
+                            trim = trailing_spaces;
+                        }
+                    }
+                }
+
+                for (const line of input) {
+                    // trim all lines
+                    output.push(line.substring(trim));
+                }
+
+                return output.join('\n');
+            }
+
+            function clean() {
+                var text = document.getElementById("text_input").value;
+
+                text = clean_double_newlines(text);
+                text = clean_leading_spaces(text);
+
+                document.getElementById("text_input").value = text;
             }
         </script>
     </head>
@@ -90,14 +136,14 @@
                     <textarea id="text_input"></textarea>
                 </td>
                 <td>
-                    <button onclick="clean()">Clean</button><br/>
-                    <button onclick="pre_convert()">Convert</button>
+                    <button onclick="clean()">Clean</button>
                     <select id="text_output_style">
                         <option value="default">Default</option>
                         <option value="small">Small</option>
                         <option value="big">Big</option>
                         <option value="big_bold">Big Bold</option>
-                    </select><br/>
+                    </select>
+                    <button onclick="pre_convert()">Convert</button><br/>
                     <input type="text" id="text_output_1"/>
                     <input type="text" id="text_output_2"/>
                     <input type="text" id="text_output_3"/>
