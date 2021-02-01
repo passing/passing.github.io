@@ -17,7 +17,7 @@
             }
         </style>
         <script>
-            function pre_attach(id, text, style) {
+            function pre_attach(id, text, style, break_tag) {
                 const max_length = 1600;
                 const html_pre = {
                     default: '<pre>',
@@ -25,18 +25,16 @@
                     big: '<pre><big>',
                     big_bold: '<pre><big><b>'
                 };
-                const html_br = '<br>';
+                const html_break = {
+                    br: '<br>',
+                    p: '<p>'
+                }
                 const html_post = {
                     default: '</pre>',
                     small: '</small></pre>',
                     big: '</big></pre>',
                     big_bold: '</b></big></pre>'
                 };
-
-                if (text) {
-                    // trim trailing spaces
-                    text = text.trimEnd()
-                }
 
                 // get current length of output
                 var length = document.getElementById(id).value.length;
@@ -45,9 +43,9 @@
                     // output is empty, add pre tags and text
                     document.getElementById(id).value += html_pre[style] + text;
                     return true;
-                } else if ((text != null) && (length + html_br.length + text.length + html_post[style].length <= max_length)) {
+                } else if ((text != null) && (length + html_break[break_tag].length + text.length + html_post[style].length <= max_length)) {
                     // output has enough space left for text and html tags
-                    document.getElementById(id).value += html_br + text;
+                    document.getElementById(id).value += html_break[break_tag] + text;
                     return true;
                 } else {
                     // output would overflow, add post tags and return false to indicate that text was not added
@@ -67,13 +65,19 @@
                 var input = document.getElementById("text_input").value.split('\n');
                 var style = document.getElementById("text_output_style").value;
                 var output = 0;
+                var break_tag = 'br';
 
                 for (const line of input) {
-                    while (!pre_attach(outputs[output], line, style)) {
-                        output += 1;
+                    if (line.trimEnd() == '') {
+                        break_tag = 'p';
+                    } else {
+                        while (!pre_attach(outputs[output], line.trimEnd(), style, break_tag)) {
+                            output += 1;
+                        }
+                        break_tag = 'br';
                     }
                 }
-                pre_attach(outputs[output], null, style);
+                pre_attach(outputs[output], null, style, 'br');
             }
 
             function clean_double_newlines(text) {
